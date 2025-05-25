@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Frontend</title>
+  </head>
+  <body>
+    <h1>Frontend Service</h1>
+    <p>Data dari backend:</p>
+    <pre id="data">Loading...</pre>
+    <script>
+      const BASE_URL =
+        window.location.hostname === "localhost"
+          ? "http://localhost:5000"
+          : "http://backend:5000";
+
+      fetch(`${BASE_URL}/api`)
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById("data").innerText = JSON.stringify(data);
+        });
+    </script>
+  </body>
+</html>
