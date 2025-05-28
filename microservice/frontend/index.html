@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Microservice Demo</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 2rem;
+      }
+      button {
+        margin: 0.5rem 0.5rem 1rem 0;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+      }
+      pre {
+        background: #f0f0f0;
+        padding: 1rem;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Microservice Demo</h1>
+
+    <button onclick="createUser()">1. Create User</button>
+    <button onclick="createOrder()">2. Create Order</button>
+    <button onclick="showSummary()">3. Show Summary</button>
+
+    <pre id="output">Click a button to begin.</pre>
+
+    <script>
+      // Fleksibel: bisa diubah untuk testing/deploy
+      const BASE_USER_API = window.USER_API || "http://localhost:8000";
+      const BASE_ORDER_API = window.ORDER_API || "http://localhost:8001";
+
+      const output = document.getElementById("output");
+
+      async function createUser() {
+        try {
+          const res = await fetch(`${BASE_USER_API}/user`, { method: "POST" });
+          const data = await res.json();
+          localStorage.setItem("user_id", data.id);
+          output.innerText = "User created:\n" + JSON.stringify(data, null, 2);
+        } catch (err) {
+          output.innerText = "Error creating user:\n" + err;
+        }
+      }
+
+      async function createOrder() {
+        try {
+          const user_id = localStorage.getItem("user_id") || "guest";
+          const res = await fetch(`${BASE_ORDER_API}/order`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_id: user_id,
+              product: "Example Product",
+              price: 19.99,
+            }),
+          });
+          const data = await res.json();
+          output.innerText = "Order created:\n" + JSON.stringify(data, null, 2);
+        } catch (err) {
+          output.innerText = "Error creating order:\n" + err;
+        }
+      }
+
+      async function showSummary() {
+        try {
+          const res = await fetch(`${BASE_ORDER_API}/summary`);
+          const data = await res.json();
+          output.innerText = "Summary:\n" + JSON.stringify(data, null, 2);
+        } catch (err) {
+          output.innerText = "Error fetching summary:\n" + err;
+        }
+      }
+    </script>
+  </body>
+</html>

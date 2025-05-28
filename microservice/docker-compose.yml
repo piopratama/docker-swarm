@@ -1,0 +1,79 @@
+version: "3.8"
+
+services:
+  user_db:
+    image: postgres:15
+    container_name: user_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: userpass
+      POSTGRES_DB: user_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - user_data:/var/lib/postgresql/data
+      - ./init/user/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  order_db:
+    image: postgres:15
+    container_name: order_db
+    environment:
+      POSTGRES_USER: order
+      POSTGRES_PASSWORD: orderpass
+      POSTGRES_DB: order_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - order_data:/var/lib/postgresql/data
+      - ./init/order/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  user_service:
+    build:
+      context: ./user_service
+    container_name: user_service
+    depends_on:
+      - user_db
+      - redis
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: user_db
+      DB_PORT: 5432
+      DB_USER: user
+      DB_PASSWORD: userpass
+      DB_NAME: user_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+  order_service:
+    build:
+      context: ./order_service
+    container_name: order_service
+    depends_on:
+      - order_db
+      - redis
+    ports:
+      - "8001:8001"
+    environment:
+      DB_HOST: order_db
+      DB_PORT: 5432
+      DB_USER: order
+      DB_PASSWORD: orderpass
+      DB_NAME: order_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    command: >
+      bash -c "
+      uvicorn app:app --host 0.0.0.0 --port 8001 &
+      python consumer.py
+      "
+
+volumes:
+  user_data:
+  order_data:

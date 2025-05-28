@@ -19,6 +19,7 @@ Aplikasi ini bertujuan untuk menunjukkan bagaimana **session counter** (mengguna
 ### ✅ 1. Uji Aplikasi Manual (Tanpa Docker)
 
 **Backend (Flask):**
+
 ```bash
 cd backend
 python -m venv venv
@@ -28,6 +29,7 @@ python app.py
 ```
 
 **Frontend:**
+
 ```bash
 cd frontend
 python -m http.server 8080
@@ -35,6 +37,7 @@ python -m http.server 8080
 
 **Masalah:**
 Jika Redis dijalankan di dalam container, Flask (yang berjalan di host) tidak bisa mengenali `host='redis'`. Maka:
+
 - Gunakan `host='localhost'` jika Redis di host
 - Gunakan Docker Compose jika Redis dan Flask di container
 
@@ -47,6 +50,7 @@ docker run -d --name redis -p 6379:6379 redis:alpine
 ```
 
 Ubah koneksi di `app.py`:
+
 ```python
 redis.StrictRedis(host='localhost', port=6379)
 ```
@@ -58,6 +62,7 @@ Lalu uji Flask kembali.
 ### ✅ 3. Uji Dengan Docker Saja (Tanpa Compose)
 
 Build manual:
+
 ```bash
 docker build -t backend-test ./backend
 docker run -p 5000:5000 backend-test
@@ -95,6 +100,7 @@ services:
 ```
 
 Jalankan:
+
 ```bash
 docker-compose up --build
 ```
@@ -104,12 +110,14 @@ docker-compose up --build
 ### ✅ 5. Deploy ke Docker Swarm
 
 Swarm tidak mendukung `build:` sehingga perlu build manual image terlebih dahulu:
+
 ```bash
 docker build -t swarmdemo_backend ./backend
 docker build -t swarmdemo_frontend ./frontend
 ```
 
 File: `docker-compose-swarm.yml`
+
 ```yaml
 version: "3.8"
 services:
@@ -134,6 +142,7 @@ services:
 ```
 
 Deploy:
+
 ```bash
 docker swarm init
 
@@ -141,6 +150,7 @@ docker stack deploy -c docker-compose-swarm.yml swarmdemo
 ```
 
 Hapus:
+
 ```bash
 docker stack rm swarmdemo
 ```
@@ -152,13 +162,15 @@ docker stack rm swarmdemo
 Dengan konfigurasi ini, frontend akan melakukan fetch ke `/api`, dan backend akan menyimpan session counter di Redis. Saat direplikasi di Swarm, session tetap konsisten walaupun request diarahkan ke instance backend berbeda.
 
 Frontend fetch:
+
 ```js
 fetch("http://backend:5000/api", {
-  credentials: "include"
-})
+  credentials: "include",
+});
 ```
 
 Backend menggunakan Redis:
+
 ```python
 app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_REDIS'] = redis.StrictRedis(host='redis', port=6379)
@@ -178,22 +190,31 @@ app.config['SESSION_REDIS'] = redis.StrictRedis(host='redis', port=6379)
 ## 💡 Tips Debugging
 
 - Cek container:
+
 ```bash
 docker ps -a
 ```
+
 - Cek log:
+
 ```bash
 docker logs <container_id>
 ```
+
 - Hapus container:
+
 ```bash
 docker rm -f <container_id>
 ```
+
 - Hapus stack:
+
 ```bash
 docker stack rm swarmdemo
 ```
+
 - Bersih-bersih:
+
 ```bash
 docker system prune -a --volumes -f
 ```

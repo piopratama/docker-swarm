@@ -15,6 +15,7 @@ services:
       - redis
     environment:
       - FLASK_ENV=development
+      - REDIS_HOST=redis
     # deploy: ❌ jangan aktifkan untuk docker-compose biasa
 
   frontend:

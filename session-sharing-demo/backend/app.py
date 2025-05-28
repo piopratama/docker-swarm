@@ -1,3 +1,4 @@
+import os
 from flask import Flask, session, jsonify
 from flask_session import Session
 import redis
@@ -11,9 +12,11 @@ app.secret_key = 'mysecretkey'
 # CORS fix: support credentials (cookies)
 CORS(app, supports_credentials=True)
 
+REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+
 # Redis untuk session
 app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_REDIS'] = redis.StrictRedis(host='redis', port=6379)
+app.config['SESSION_REDIS'] = redis.StrictRedis(host=REDIS_HOST, port=6379)
 app.config['SESSION_PERMANENT'] = False
 
 Session(app)
