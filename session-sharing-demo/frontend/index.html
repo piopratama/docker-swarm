@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Frontend</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <h1>Frontend Service</h1>
+    <p>Data dari backend (dengan session counter):</p>
+    <pre id="data">Loading...</pre>
+
+    <button onclick="getData()">🔄 Refresh</button>
+
+    <script>
+      const isLocal = window.location.hostname === "localhost";
+      const BASE_URL = `${location.protocol}//${
+        isLocal ? "localhost:5000" : "backend:5000"
+      }`;
+
+      async function getData() {
+        try {
+          const response = await fetch(`${BASE_URL}/api`, {
+            credentials: "include",
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          document.getElementById("data").innerText = JSON.stringify(
+            data,
+            null,
+            2
+          );
+        } catch (error) {
+          document.getElementById("data").innerText =
+            "❌ Error fetching data:\n" + error;
+          console.error("Fetch error:", error);
+        }
+      }
+
+      getData();
+    </script>
+  </body>
+</html>
