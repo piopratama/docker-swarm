@@ -30,9 +30,17 @@
     <pre id="output">Click a button to begin.</pre>
 
     <script>
-      // Fleksibel: bisa diubah untuk testing/deploy
-      const BASE_USER_API = window.USER_API || "http://localhost:8000";
-      const BASE_ORDER_API = window.ORDER_API || "http://localhost:8001";
+      // Smart detection: use Docker service names if not on localhost
+      const isDockerEnv =
+        window.location.hostname !== "localhost" &&
+        window.location.hostname !== "127.0.0.1";
+
+      const BASE_USER_API = isDockerEnv
+        ? "http://user_service:8000"
+        : "http://localhost:8000";
+      const BASE_ORDER_API = isDockerEnv
+        ? "http://order_service:8001"
+        : "http://localhost:8001";
 
       const output = document.getElementById("output");
 

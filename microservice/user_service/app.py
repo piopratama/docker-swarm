@@ -1,9 +1,10 @@
 import os
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+import uuid
+import asyncio
 import asyncpg
 import redis.asyncio as aioredis
-import uuid
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -20,21 +21,46 @@ app.add_middleware(
 db_pool = None
 redis = None
 
+# Retry helper
+async def wait_for_service(connect_func, retries=5, delay=2):
+    for i in range(retries):
+        try:
+            return await connect_func()
+        except Exception as e:
+            print(f"Retry {i+1}/{retries} - {e}")
+            await asyncio.sleep(delay)
+    raise Exception("Failed to connect after retries")
+
 @app.on_event("startup")
 async def startup():
     global db_pool, redis
 
     db_host = os.getenv("DB_HOST", "localhost")
     redis_host = os.getenv("REDIS_HOST", "localhost")
+    db_user = os.getenv("DB_USER", "user")
+    db_password = os.getenv("DB_PASSWORD", "userpass")
+    db_name = os.getenv("DB_NAME", "user_db")
 
-    db_pool = await asyncpg.create_pool(
-        user=os.getenv("DB_USER", "user"),
-        password=os.getenv("DB_PASSWORD", "userpass"),
-        database=os.getenv("DB_NAME", "user_db"),
-        host=db_host
-    )
+    async def connect_db():
+        return await asyncpg.create_pool(
+            user=db_user,
+            password=db_password,
+            database=db_name,
+            host=db_host,
+            port=int(os.getenv("DB_PORT", 5432)),
+        )
 
-    redis = await aioredis.from_url(f"redis://{redis_host}", decode_responses=True)
+    async def connect_redis():
+        return await aioredis.from_url(f"redis://{redis_host}", decode_responses=True)
+
+    db_pool = await wait_for_service(connect_db)
+    redis = await wait_for_service(connect_redis)
+
+    print("✅ Connected to DB and Redis")
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
 
 @app.post("/user")
 async def create_user():
@@ -45,7 +71,11 @@ async def create_user():
     # Simpan ke database
     async with db_pool.acquire() as conn:
         await conn.execute(
-            "INSERT INTO users (id, name, email) VALUES ($1, $2, $3)",
+            """
+            INSERT INTO users (id, name, email)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (id) DO NOTHING
+            """,
             user_id, name, email
         )
 

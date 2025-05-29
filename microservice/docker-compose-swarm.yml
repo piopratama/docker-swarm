@@ -14,6 +14,9 @@ services:
       - ./init/user/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - backend
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   order_db:
     image: postgres:15
@@ -28,6 +31,9 @@ services:
       - ./init/order/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - backend
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   redis:
     image: redis:7
@@ -35,13 +41,12 @@ services:
       - "6379:6379"
     networks:
       - backend
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   user_service:
-    build:
-      context: ./user_service
-    depends_on:
-      - user_db
-      - redis
+    image: user_service:local
     ports:
       - "8000:8000"
     environment:
@@ -54,13 +59,13 @@ services:
       REDIS_PORT: 6379
     networks:
       - backend
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
 
   order_service:
-    build:
-      context: ./order_service
-    depends_on:
-      - order_db
-      - redis
+    image: order_service:local
     ports:
       - "8001:8001"
     environment:
@@ -78,16 +83,21 @@ services:
       "
     networks:
       - backend
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
 
   frontend:
-    build: ./frontend
+    image: frontend:local
     ports:
       - "8080:80"
-    depends_on:
-      - order_service
-      - user_service
     networks:
       - backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
 volumes:
   user_data:
@@ -95,3 +105,4 @@ volumes:
 
 networks:
   backend:
+    driver: overlay
