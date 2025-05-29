@@ -74,6 +74,14 @@ services:
       python consumer.py
       "
 
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - order_service
+      - user_service
+
 volumes:
   user_data:
   order_data:
