@@ -73,7 +73,7 @@ services:
         constraints: [node.role == manager]
 
   backend:
-    build: ./backend
+    image: swarmdemo_backend
     environment:
       RUN_ENV: docker
     ports:
@@ -92,7 +92,7 @@ services:
         constraints: [node.role == manager]
 
   frontend:
-    build: ./frontend
+    image: swarmdemo_frontend
     ports:
       - "8080:80"
     depends_on:
