@@ -1,0 +1,81 @@
+version: "3.8"
+
+services:
+  shard1-db:
+    image: postgres:15
+    container_name: shard1-db
+    restart: always
+    environment:
+      POSTGRES_DB: shard1
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - shard1_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+
+  shard2-db:
+    image: postgres:15
+    container_name: shard2-db
+    restart: always
+    environment:
+      POSTGRES_DB: shard2
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "5434:5432"
+    volumes:
+      - shard2_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+
+  replica1-db:
+    image: postgres:15
+    container_name: replica1-db
+    restart: always
+    environment:
+      POSTGRES_DB: replica1
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "5436:5432"
+    volumes:
+      - replica1_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+
+  replica2-db:
+    image: postgres:15
+    container_name: replica2-db
+    restart: always
+    environment:
+      POSTGRES_DB: replica2
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "5437:5432"
+    volumes:
+      - replica2_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - shard1-db
+      - shard2-db
+      - replica1-db
+      - replica2-db
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "8080:80"
+
+volumes:
+  shard1_data:
+  shard2_data:
+  replica1_data:
+  replica2_data:

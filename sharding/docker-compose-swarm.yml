@@ -1,0 +1,91 @@
+version: "3.8"
+
+services:
+  shard1-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: shard1
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - shard1_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+  shard2-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: shard2
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - shard2_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+  replica1-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: replica1
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - replica1_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+  replica2-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: replica2
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - replica2_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+  backend:
+    image: swarmdemo_backend
+    environment:
+      RUN_ENV: docker
+    ports:
+      - "5000:5000"
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+    depends_on:
+      - shard1-db
+      - shard2-db
+      - replica1-db
+      - replica2-db
+
+  frontend:
+    image: swarmdemo_frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+
+volumes:
+  shard1_data:
+  shard2_data:
+  replica1_data:
+  replica2_data:

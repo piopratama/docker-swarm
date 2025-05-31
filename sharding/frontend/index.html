@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Frontend Service</title>
+  </head>
+  <body>
+    <h1>Sharding & Replikasi Demo</h1>
+
+    <button onclick="writeData()">Write Data</button>
+    <button onclick="readData()">Read Data</button>
+
+    <h2>Response:</h2>
+    <pre id="data">Belum ada data</pre>
+
+    <script>
+      let BASE_URL;
+
+      if (window.location.hostname === "localhost") {
+        BASE_URL = "http://localhost:5000";
+      } else {
+        const port = window.location.port;
+        if (port === "8080") {
+          BASE_URL = window.location.origin.replace("8080", "5000");
+        } else {
+          BASE_URL = window.location.origin;
+        }
+      }
+
+      function writeData() {
+        fetch(`${BASE_URL}/write`)
+          .then((res) => res.json())
+          .then((data) => {
+            document.getElementById("data").innerText =
+              "WRITE:\n" + JSON.stringify(data, null, 2);
+          })
+          .catch((err) => {
+            document.getElementById("data").innerText =
+              "Error during write: " + err;
+          });
+      }
+
+      function readData() {
+        fetch(`${BASE_URL}/read`)
+          .then((res) => res.json())
+          .then((data) => {
+            document.getElementById("data").innerText =
+              "READ:\n" + JSON.stringify(data, null, 2);
+          })
+          .catch((err) => {
+            document.getElementById("data").innerText =
+              "Error during read: " + err;
+          });
+      }
+    </script>
+  </body>
+</html>
