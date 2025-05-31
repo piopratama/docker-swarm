@@ -53,26 +53,46 @@ services:
       placement:
         constraints: [node.role == manager]
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
   backend:
-    image: swarmdemo_backend
+    build: ./backend
     environment:
       RUN_ENV: docker
     ports:
       - "5000:5000"
+    depends_on:
+      - shard1-db
+      - shard2-db
+      - replica1-db
+      - replica2-db
+      - elasticsearch
     deploy:
       replicas: 2
       restart_policy:
         condition: on-failure
       placement:
         constraints: [node.role == manager]
-    depends_on:
-      - shard1-db
-      - shard2-db
-      - replica1-db
-      - replica2-db
 
   frontend:
-    image: swarmdemo_frontend
+    build: ./frontend
     ports:
       - "8080:80"
     depends_on:
@@ -89,3 +109,4 @@ volumes:
   shard2_data:
   replica1_data:
   replica2_data:
+  es_data:

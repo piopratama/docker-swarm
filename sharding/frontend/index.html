@@ -9,6 +9,14 @@
     <button onclick="writeData()">Write Data</button>
     <button onclick="readData()">Read Data</button>
 
+    <h3>Cari Data Spesifik:</h3>
+    <input
+      type="text"
+      id="searchQuery"
+      placeholder="Masukkan keyword, misal: data-3"
+    />
+    <button onclick="searchData()">Search</button>
+
     <h2>Response:</h2>
     <pre id="data">Belum ada data</pre>
 
@@ -49,6 +57,25 @@
           .catch((err) => {
             document.getElementById("data").innerText =
               "Error during read: " + err;
+          });
+      }
+
+      function searchData() {
+        const query = document.getElementById("searchQuery").value;
+        if (!query) {
+          alert("Masukkan kata kunci pencarian.");
+          return;
+        }
+
+        fetch(`${BASE_URL}/search?q=${encodeURIComponent(query)}`)
+          .then((res) => res.json())
+          .then((data) => {
+            document.getElementById("data").innerText =
+              "SEARCH:\n" + JSON.stringify(data, null, 2);
+          })
+          .catch((err) => {
+            document.getElementById("data").innerText =
+              "Error during search: " + err;
           });
       }
     </script>
