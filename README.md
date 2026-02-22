@@ -1,10 +1,12 @@
-# 🚀 Docker Swarm Demo Project
+[![DOI](https://zenodo.org/badge/989883309.svg)](https://doi.org/10.5281/zenodo.18732473)
+
+# Docker Swarm Demo Project
 
 Proyek ini dibuat untuk mempelajari dasar penggunaan Docker, Docker Compose, dan Docker Swarm dengan membangun aplikasi sederhana berbasis **backend Flask** dan **frontend statis (HTML/JS)**. Dokumentasi ini memandu dari awal pengujian aplikasi lokal hingga penerapan replikasi service menggunakan Swarm.
 
 ---
 
-## 📁 Struktur Folder
+## Struktur Folder
 
 ```
 DOCKERSWARM/
@@ -21,9 +23,9 @@ DOCKERSWARM/
 
 ---
 
-## 🧪 Tahap 1: Pengujian Aplikasi Secara Lokal (Tanpa Docker)
+## Tahap 1: Pengujian Aplikasi Secara Lokal (Tanpa Docker)
 
-### ✅ Backend (Flask)
+### Backend (Flask)
 
 1. Masuk ke folder:
    ```
@@ -47,7 +49,7 @@ DOCKERSWARM/
    http://localhost:5000/api
    ```
 
-### ✅ Frontend (HTML)
+### Frontend (HTML)
 
 1. Masuk ke folder frontend:
    ```
@@ -70,9 +72,9 @@ DOCKERSWARM/
 
 ---
 
-## 🐳 Tahap 2: Pahami dan Uji Dockerfile
+## Tahap 2: Pahami dan Uji Dockerfile
 
-### 🔹 Isi `backend/Dockerfile`
+### Isi `backend/Dockerfile`
 
 ```dockerfile
 FROM python:3.9-slim
@@ -87,7 +89,7 @@ CMD ["python", "app.py"]
 - Menginstal dependensi dari `requirements.txt`
 - Menjalankan Flask app
 
-### 🔹 Isi `frontend/Dockerfile`
+### Isi `frontend/Dockerfile`
 
 ```dockerfile
 FROM nginx:alpine
@@ -99,16 +101,16 @@ COPY index.html /usr/share/nginx/html/index.html
 
 ---
 
-## 🧪 Tahap 3: Uji Build & Run Docker
+## Tahap 3: Uji Build & Run Docker
 
-### ✅ Build dan Jalankan Backend
+### Build dan Jalankan Backend
 
 ```bash
 docker build -t backend-test:v1 ./backend
 docker run -p 5000:5000 --rm backend-test:v1
 ```
 
-### ✅ Build dan Jalankan Frontend
+### Build dan Jalankan Frontend
 
 ```bash
 docker build -t frontend-test:v1 ./frontend
@@ -123,7 +125,7 @@ docker run -p 8080:80 --rm frontend-test:v1
 
 ---
 
-## ❌ Penanganan Error
+## Penanganan Error
 
 Jika container gagal:
 
@@ -146,26 +148,26 @@ Jika container gagal:
 
 ---
 
-## 🧠 Penjelasan Teknis
+## Penjelasan Teknis
 
-### ✅ Kenapa `--rm`?
+### Kenapa `--rm`?
 
 - Untuk eksperimen, agar container dihapus otomatis setelah dihentikan
 - Tidak menumpuk container "exited" di sistem
 
-### ✅ Kenapa `-p 8080:80`?
+### Kenapa `-p 8080:80`?
 
 - Port 80 adalah port default NGINX di dalam container
 - 8080 adalah port yang kita akses dari host (laptop)
 
-### ✅ Kenapa pakai `flask-cors`?
+### Kenapa pakai `flask-cors`?
 
 - Karena frontend dan backend diakses dari port berbeda (8080 dan 5000)
 - Tanpa CORS, browser akan menolak permintaan dari frontend ke backend
 
 ---
 
-## 🏷️ Versioning Image
+## Versioning Image
 
 Gunakan tag saat build image:
 
@@ -182,7 +184,7 @@ docker build -t frontend:v1 ./frontend
 
 ---
 
-## 🧩 Tahap 4: Gunakan Docker Compose (Non-Swarm)
+## Tahap 4: Gunakan Docker Compose (Non-Swarm)
 
 ```bash
 docker-compose up --build
@@ -201,7 +203,7 @@ docker-compose down
 
 ---
 
-## 🐝 Tahap 5: Pindah ke Docker Swarm
+## Tahap 5: Pindah ke Docker Swarm
 
 ### Inisialisasi:
 
@@ -229,7 +231,7 @@ docker stack rm swarmdemo
 
 ---
 
-## 📌 Catatan Akhir
+## Catatan Akhir
 
 - Gunakan `docker container prune` untuk bersih-bersih
 - Gunakan `docker logs` untuk debugging
@@ -237,7 +239,7 @@ docker stack rm swarmdemo
 
 ---
 
-## 🔗 Referensi
+## Referensi
 
 - [Docker CLI](https://docs.docker.com/engine/reference/commandline/docker/)
 - [Dockerfile reference](https://docs.docker.com/engine/reference/builder/)
@@ -246,7 +248,7 @@ docker stack rm swarmdemo
 
 ---
 
-## 🛠️ Tips Debugging & Modifikasi Image
+## Tips Debugging & Modifikasi Image
 
 Kadang kita lupa menambahkan dependensi atau ingin melakukan penyesuaian langsung di dalam container tanpa rebuild penuh. Berikut langkah-langkah praktis:
 
@@ -283,7 +285,7 @@ Kadang kita lupa menambahkan dependensi atau ingin melakukan penyesuaian langsun
 
 ---
 
-## 🔍 Kenapa NGINX Alpine Menggunakan Port 80?
+## Kenapa NGINX Alpine Menggunakan Port 80?
 
 - `nginx:alpine` adalah image ringan yang secara default menjalankan server di port **80**
 - Kita menggunakan `-p 8080:80` agar port 8080 di host terhubung ke port 80 di dalam container
@@ -300,23 +302,23 @@ Artinya file `index.html` akan langsung diakses pada `http://localhost:8080`
 
 ---
 
-## 🌐 Tips Pengecekan Jaringan Antar Container
+## Tips Pengecekan Jaringan Antar Container
 
 Dalam beberapa kasus, container mungkin tidak bisa saling terhubung karena masalah jaringan. Berikut adalah langkah-langkah dasar untuk pengecekan dan troubleshooting jaringan antar container:
 
-### 🔎 1. Cek Daftar Network yang Ada
+### 1. Cek Daftar Network yang Ada
 
 ```bash
 docker network ls
 ```
 
-### 🔌 2. Lihat Detail Network Tertentu
+### 2. Lihat Detail Network Tertentu
 
 ```bash
 docker network inspect <nama_network>
 ```
 
-### 🔁 3. Ping Antar Container (Jika pakai custom network)
+### 3. Ping Antar Container (Jika pakai custom network)
 
 1. Buat network bridge:
 
@@ -339,7 +341,7 @@ docker network inspect <nama_network>
 
 > ⚠️ `busybox` hanya contoh image ringan yang bisa digunakan untuk uji jaringan.
 
-### 🧩 Gunakan Nama Service (bukan IP)
+### Gunakan Nama Service (bukan IP)
 
 Jika menggunakan Docker Compose atau Swarm, gunakan **nama service** (misal `backend`, `frontend`) untuk komunikasi, karena Docker akan mengelola DNS internal antar service.
 
@@ -353,11 +355,11 @@ fetch("http://backend:5000/api");
 
 ---
 
-## 🧭 Pemisahan Konfigurasi Compose dan Swarm
+## Pemisahan Konfigurasi Compose dan Swarm
 
 Untuk mempermudah pengelolaan, digunakan dua file konfigurasi yang berbeda:
 
-### 📁 `docker-compose.yml` → untuk Pengembangan Lokal
+### `docker-compose.yml` → untuk Pengembangan Lokal
 
 - Menggunakan `build:` untuk membangun image langsung dari Dockerfile
 - Cocok untuk pengujian dan debugging lokal
@@ -366,7 +368,7 @@ Untuk mempermudah pengelolaan, digunakan dua file konfigurasi yang berbeda:
   docker-compose up --build
   ```
 
-### 📁 `docker-compose-swarm.yml` → untuk Deploy Docker Swarm
+### `docker-compose-swarm.yml` → untuk Deploy Docker Swarm
 
 - Menggunakan `image:` karena Swarm **tidak mendukung `build:`**
 - Jalankan setelah image dibangun secara manual:
@@ -378,26 +380,26 @@ Untuk mempermudah pengelolaan, digunakan dua file konfigurasi yang berbeda:
 
 ---
 
-## ❗ Penjelasan Penting: Kenapa `fetch('http://localhost')` Tidak Selalu Bekerja?
+## Penjelasan Penting: Kenapa `fetch('http://localhost')` Tidak Selalu Bekerja?
 
-### 📦 Kasus 1: Lokal (tanpa Docker)
+### Kasus 1: Lokal (tanpa Docker)
 
 - `localhost` di browser akan mengarah ke backend lokal di host
 - Cocok untuk pengujian awal (tanpa container)
 
-### 📦 Kasus 2: Frontend dalam container, backend di host
+### Kasus 2: Frontend dalam container, backend di host
 
 - Gunakan `host.docker.internal` (khusus Mac/Windows):
   ```js
   fetch("http://host.docker.internal:5000/api");
   ```
 
-### 📦 Kasus 3: Compose / Swarm
+### Kasus 3: Compose / Swarm
 
 - Gunakan nama service Docker (`http://backend:5000`)
 - Karena `localhost` dari dalam container akan merujuk ke container itu sendiri, bukan host
 
-### ✅ Solusi Adaptif
+### Solusi Adaptif
 
 Gunakan JavaScript seperti ini di `index.html`:
 
@@ -410,9 +412,9 @@ fetch(`${BASE_URL}/api`);
 
 ---
 
-## 🧯 Kenapa `docker stack deploy` Bisa Gagal?
+## Kenapa `docker stack deploy` Bisa Gagal?
 
-### ⚠️ Error: `image reference must be provided`
+### Error: `image reference must be provided`
 
 Artinya file Compose menggunakan `build:` yang tidak didukung oleh Swarm.
 
@@ -425,9 +427,9 @@ Artinya file Compose menggunakan `build:` yang tidak didukung oleh Swarm.
 
 ---
 
-## ⚠️ Pemahaman Tambahan: Masalah Umum Saat Compose dan Swarm
+## Pemahaman Tambahan: Masalah Umum Saat Compose dan Swarm
 
-### 🔴 1. Kenapa `docker-compose up --build` Gagal?
+### 1. Kenapa `docker-compose up --build` Gagal?
 
 Jika kamu menambahkan:
 
@@ -438,7 +440,7 @@ deploy:
 
 ...lalu menjalankan `docker-compose up`, maka akan terjadi **konflik port**.
 
-#### 📌 Penyebab:
+#### Penyebab:
 
 - `docker-compose` **tidak mendukung `deploy.replicas`**
 - Tapi tetap mencoba membuat 2 container **yang mem-bind port yang sama**
@@ -446,7 +448,7 @@ deploy:
   - Dua backend mencoba membuka `5000:5000`
   - Hasil: `Only one usage of each socket address is normally permitted`
 
-#### ✅ Solusi:
+#### Solusi:
 
 - Jangan pakai `deploy:` dalam `docker-compose.yml`
 - Jalankan:
@@ -457,7 +459,7 @@ deploy:
 
 ---
 
-### 🟡 2. Kenapa `docker stack deploy` Gagal Jika Pakai `build:`?
+### 2. Kenapa `docker stack deploy` Gagal Jika Pakai `build:`?
 
 Swarm **tidak bisa build image langsung**. Saat kamu jalankan:
 
@@ -477,7 +479,7 @@ Akan muncul error seperti:
 failed to create service: image reference must be provided
 ```
 
-#### ✅ Solusi:
+#### Solusi:
 
 1. **Build dulu imagenya secara manual:**
 
@@ -499,7 +501,7 @@ failed to create service: image reference must be provided
 
 ---
 
-### 🔄 3. Perbedaan `docker-compose` vs `docker stack deploy`
+### 3. Perbedaan `docker-compose` vs `docker stack deploy`
 
 | Fitur                       | `docker-compose`           | `docker stack deploy`       |
 | --------------------------- | -------------------------- | --------------------------- |
@@ -513,11 +515,11 @@ failed to create service: image reference must be provided
 
 ---
 
-## 🔎 Mengetahui Nama Service dan Memverifikasi DNS Antar Container
+## Mengetahui Nama Service dan Memverifikasi DNS Antar Container
 
-### 🧩 Menentukan Nama Service
+### Menentukan Nama Service
 
-#### 🔹 Docker Compose
+#### Docker Compose
 
 Nama service diambil dari `docker-compose.yml`:
 
@@ -534,7 +536,7 @@ Maka nama DNS service di dalam jaringan Docker adalah:
 
 > Ini berarti container `frontend` bisa mengakses `http://backend:5000` tanpa konfigurasi tambahan.
 
-#### 🔹 Docker Swarm
+#### Docker Swarm
 
 Jika menggunakan:
 
@@ -551,9 +553,9 @@ Namun untuk komunikasi internal antar service, **Docker tetap menyediakan alias 
 
 ---
 
-### 🧠 Mengecek DNS Docker Antar Container
+### Mengecek DNS Docker Antar Container
 
-#### 🔍 1. Masuk ke salah satu container
+#### 1. Masuk ke salah satu container
 
 ```bash
 docker exec -it <nama_container> /bin/sh
@@ -565,7 +567,7 @@ Atau untuk Python image (non-alpine):
 docker exec -it <nama_container> bash
 ```
 
-#### 🔍 2. Tes DNS menggunakan `ping` atau `nslookup`
+#### 2. Tes DNS menggunakan `ping` atau `nslookup`
 
 ```bash
 ping backend
@@ -588,3 +590,9 @@ Jika berhasil, berarti DNS internal Docker bekerja.
 > ```
 
 ---
+
+## Citation
+
+If you use this software in academic work, please cite:
+
+Pratama, I. W. P. (2025). Docker Swarm Demo Project (Version 1.0.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.18732473
