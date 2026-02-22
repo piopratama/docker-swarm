@@ -505,10 +505,10 @@ failed to create service: image reference must be provided
 
 | Fitur                       | `docker-compose`           | `docker stack deploy`       |
 | --------------------------- | -------------------------- | --------------------------- |
-| Mendukung `build:`          | ✅ Ya                      | ❌ Tidak                    |
-| Mendukung `deploy.replicas` | ❌ Tidak (diabaikan)       | ✅ Ya                       |
-| Replikasi Container         | ❌ Manual                  | ✅ Otomatis via `replicas`  |
-| Port harus unik per host    | ✅ Ya (satu bind per port) | ✅ Ya (hanya 1 yang expose) |
+| Mendukung `build:`          | Ya                      | Tidak                    |
+| Mendukung `deploy.replicas` | Tidak (diabaikan)       | Ya                       |
+| Replikasi Container         | Manual                  | Otomatis via `replicas`  |
+| Port harus unik per host    | Ya (satu bind per port) | Ya (hanya 1 yang expose) |
 | Cocok untuk                 | Dev / Lokal                | Production / Skala Besar    |
 
 ---
